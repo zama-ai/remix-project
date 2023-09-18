@@ -14,10 +14,16 @@ import {
   upgradeReportMsg
 } from '@remix-ui/helper'
 import {Dropdown} from 'react-bootstrap'
+import {FhevmInstance} from 'fhevmjs/web'
+import {getInstance} from '../fhevm'
+
+export const toHexString = (bytes: Uint8Array) =>
+  bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '')
 
 const txFormat = remixLib.execution.txFormat
 const txHelper = remixLib.execution.txHelper
 export function ContractGUI(props: ContractGUIProps) {
+  const [instance, setInstance] = useState<FhevmInstance>()
   const [title, setTitle] = useState<string>('')
   const [basicInput, setBasicInput] = useState<string>('')
   const [toggleContainer, setToggleContainer] = useState<boolean>(false)
@@ -37,9 +43,15 @@ export function ContractGUI(props: ContractGUIProps) {
   const [proxyAddressError, setProxyAddressError] = useState<string>('')
   const [showDropdown, setShowDropdown] = useState<boolean>(false)
   const multiFields = useRef<Array<HTMLInputElement | null>>([])
+  const multiSelects = useRef<Array<HTMLSelectElement | null>>([])
   const initializeFields = useRef<Array<HTMLInputElement | null>>([])
   const basicInputRef = useRef<HTMLInputElement>()
   const intl = useIntl()
+
+  useEffect(() => {
+    console.log('gui', getInstance())
+    setInstance(getInstance())
+  }, [getInstance()])
 
   useEffect(() => {
     if (props.deployOption && Array.isArray(props.deployOption)) {
@@ -73,6 +85,7 @@ export function ContractGUI(props: ContractGUIProps) {
       .filter((el) => el !== null && el !== undefined)
       .forEach((el) => (el.value = ''))
     multiFields.current = []
+    multiSelects.current = []
   }, [props.title, props.funcABI])
 
   useEffect(() => {
@@ -107,7 +120,11 @@ export function ContractGUI(props: ContractGUIProps) {
   }, [props.lookupOnly, props.funcABI, title])
 
   const getEncodedCall = () => {
-    const multiString = getMultiValsString(multiFields.current)
+    console.log('getEncodedCall')
+    const multiString = getMultiValsString(
+      multiFields.current,
+      multiSelects.current
+    )
     // copy-to-clipboard icon is only visible for method requiring input params
     if (!multiString) {
       return 'cannot encode empty arguments'
@@ -130,7 +147,11 @@ export function ContractGUI(props: ContractGUIProps) {
 
   const getEncodedParams = () => {
     try {
-      const multiString = getMultiValsString(multiFields.current)
+      console.log('getEncodedParams')
+      const multiString = getMultiValsString(
+        multiFields.current,
+        multiSelects.current
+      )
       // copy-to-clipboard icon is only visible for method requiring input params
       if (!multiString) {
         return 'cannot encode empty arguments'
@@ -149,12 +170,19 @@ export function ContractGUI(props: ContractGUIProps) {
 
   const switchMethodViewOff = () => {
     setToggleContainer(false)
-    const multiValString = getMultiValsString(multiFields.current)
+    console.log('switchMethodViewOff')
+    const multiValString = getMultiValsString(
+      multiFields.current,
+      multiSelects.current
+    )
 
     if (multiValString) setBasicInput(multiValString)
   }
 
-  const getMultiValsString = (fields: HTMLInputElement[]) => {
+  const getMultiValsString = (
+    fields: HTMLInputElement[],
+    selects?: HTMLSelectElement[]
+  ) => {
     const valArray = fields
     let ret = ''
     const valArrayTest = []
@@ -162,18 +190,58 @@ export function ContractGUI(props: ContractGUIProps) {
     for (let j = 0; j < valArray.length; j++) {
       if (ret !== '') ret += ','
       let elVal = valArray[j] ? valArray[j].value : ''
+      const selectValue = selects[j] ? selects[j].value : ''
 
       valArrayTest.push(elVal)
-      elVal = elVal.replace(/(^|,\s+|,)(\d+)(\s+,|,|$)/g, '$1"$2"$3') // replace non quoted number by quoted number
-      elVal = elVal.replace(
-        /(^|,\s+|,)(0[xX][0-9a-fA-F]+)(\s+,|,|$)/g,
-        '$1"$2"$3'
-      ) // replace non quoted hex string by quoted hex string
-      if (elVal) {
-        try {
-          JSON.parse(elVal)
-        } catch (e) {
-          elVal = '"' + elVal + '"'
+      switch (selectValue) {
+        case '1': {
+          if (elVal.substring(0, 2) !== '0x') {
+            try {
+              elVal = `0x${toHexString(instance.encrypt8(+elVal))}`
+            } catch (e) {}
+          }
+          break
+        }
+        case '8': {
+          if (elVal.substring(0, 2) !== '0x') {
+            try {
+              elVal = `0x${toHexString(instance.encrypt8(+elVal))}`
+            } catch (e) {}
+          }
+          break
+        }
+
+        case '16': {
+          if (elVal.substring(0, 2) !== '0x') {
+            try {
+              elVal = `0x${toHexString(instance.encrypt16(+elVal))}`
+            } catch (e) {}
+          }
+          break
+        }
+
+        case '32': {
+          if (elVal.substring(0, 2) !== '0x') {
+            try {
+              elVal = `0x${toHexString(instance.encrypt32(+elVal))}`
+            } catch (e) {}
+          }
+          break
+        }
+
+        default: {
+          elVal = elVal.replace(/(^|,\s+|,)(\d+)(\s+,|,|$)/g, '$1"$2"$3') // replace non quoted number by quoted number
+          elVal = elVal.replace(
+            /(^|,\s+|,)(0[xX][0-9a-fA-F]+)(\s+,|,|$)/g,
+            '$1"$2"$3'
+          ) // replace non quoted hex string by quoted hex string
+          if (elVal) {
+            try {
+              JSON.parse(elVal)
+            } catch (e) {
+              elVal = '"' + elVal + '"'
+            }
+          }
         }
       }
       ret += elVal
@@ -205,6 +273,7 @@ export function ContractGUI(props: ContractGUIProps) {
 
   const handleActionClick = async () => {
     if (deployState.deploy) {
+      console.log('handleActionClick')
       const proxyInitializeString = getMultiValsString(initializeFields.current)
       props.clickCallBack(
         props.initializerOptions.inputs.inputs,
@@ -279,7 +348,11 @@ export function ContractGUI(props: ContractGUIProps) {
   }
 
   const handleExpandMultiClick = () => {
-    const valsString = getMultiValsString(multiFields.current)
+    console.log('handleExpandMultiClick')
+    const valsString = getMultiValsString(
+      multiFields.current,
+      multiSelects.current
+    )
 
     if (valsString) {
       props.clickCallBack(props.funcABI.inputs, valsString)
@@ -347,8 +420,8 @@ export function ContractGUI(props: ContractGUIProps) {
             toggleUpgradeImp && !proxyAddress
               ? 'Proxy address cannot be empty'
               : props.inputs !== '' && basicInput === ''
-                ? 'Input required'
-                : buttonOptions.title
+              ? 'Input required'
+              : buttonOptions.title
           }
         >
           <div
@@ -434,15 +507,31 @@ export function ContractGUI(props: ContractGUIProps) {
                     tooltipClasses="text-nowrap"
                     tooltipText={inp.name}
                   >
-                    <input
-                      ref={(el) => {
-                        multiFields.current[index] = el
-                      }}
-                      className="form-control"
-                      placeholder={inp.type}
-                      data-id={`multiParamManagerInput${inp.name}`}
-                      onChange={handleBasicInput}
-                    />
+                    <>
+                      <input
+                        ref={(el) => {
+                          multiFields.current[index] = el
+                        }}
+                        className="form-control"
+                        placeholder={inp.type}
+                        data-id={`multiParamManagerInput${inp.name}`}
+                        onChange={handleBasicInput}
+                      />
+                      {inp.type === 'bytes' && instance && (
+                        <select
+                          ref={(el) => {
+                            multiSelects.current[index] = el
+                          }}
+                          className="form-control custom-select"
+                        >
+                          <option value="">none</option>
+                          <option value="1">ebool</option>
+                          <option value="8">euint32</option>
+                          <option value="16">euint16</option>
+                          <option value="32">euint32</option>
+                        </select>
+                      )}
+                    </>
                   </CustomTooltip>
                 </div>
               )
@@ -526,51 +615,51 @@ export function ContractGUI(props: ContractGUIProps) {
             <div>
               {props.initializerOptions &&
               props.initializerOptions.initializeInputs ? (
-                  <span onClick={handleToggleDeployProxy}>
-                    <i
-                      className={
-                        !toggleDeployProxy
-                          ? 'fas fa-angle-right pt-2'
-                          : 'fas fa-angle-down'
-                      }
-                      aria-hidden="true"
-                    ></i>
-                  </span>
-                ) : null}
+                <span onClick={handleToggleDeployProxy}>
+                  <i
+                    className={
+                      !toggleDeployProxy
+                        ? 'fas fa-angle-right pt-2'
+                        : 'fas fa-angle-down'
+                    }
+                    aria-hidden="true"
+                  ></i>
+                </span>
+              ) : null}
             </div>
           </div>
           {props.initializerOptions &&
           props.initializerOptions.initializeInputs ? (
-              <div
-                className={`pl-4 flex-column ${
-                  toggleDeployProxy ? 'd-flex' : 'd-none'
-                }`}
-              >
-                <div className={`flex-column 'd-flex'}`}>
-                  {props.initializerOptions.inputs.inputs.map((inp, index) => {
-                    return (
-                      <div className="mb-2" key={index}>
-                        <label
-                          className="mt-2 text-left d-block"
-                          htmlFor={inp.name}
-                        >
-                          {' '}
-                          {inp.name}:{' '}
-                        </label>
-                        <input
-                          ref={(el) => {
-                            initializeFields.current[index] = el
-                          }}
-                          style={{height: 32}}
-                          className="form-control udapp_input"
-                          placeholder={inp.type}
-                        />
-                      </div>
-                    )
-                  })}
-                </div>
+            <div
+              className={`pl-4 flex-column ${
+                toggleDeployProxy ? 'd-flex' : 'd-none'
+              }`}
+            >
+              <div className={`flex-column 'd-flex'}`}>
+                {props.initializerOptions.inputs.inputs.map((inp, index) => {
+                  return (
+                    <div className="mb-2" key={index}>
+                      <label
+                        className="mt-2 text-left d-block"
+                        htmlFor={inp.name}
+                      >
+                        {' '}
+                        {inp.name}:{' '}
+                      </label>
+                      <input
+                        ref={(el) => {
+                          initializeFields.current[index] = el
+                        }}
+                        style={{height: 32}}
+                        className="form-control udapp_input"
+                        placeholder={inp.type}
+                      />
+                    </div>
+                  )
+                })}
               </div>
-            ) : null}
+            </div>
+          ) : null}
           <div className="d-flex justify-content-between">
             <div className="d-flex py-1 align-items-center custom-control custom-checkbox">
               <input
