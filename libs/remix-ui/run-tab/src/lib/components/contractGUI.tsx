@@ -534,8 +534,12 @@ export function ContractGUI(props: ContractGUIProps) {
                         onChange={handleBasicInput}
                       />
                       {(isSignature || isPubKey) && instance && (
-                        <button className="btn" onClick={generateToken}>
-                          Generate
+                        <button
+                          className="btn"
+                          style={{minWidth: '100px'}}
+                          onClick={generateToken}
+                        >
+                          🔄 Generate
                         </button>
                       )}
                       {!isSignature && inp.type === 'bytes' && instance && (
