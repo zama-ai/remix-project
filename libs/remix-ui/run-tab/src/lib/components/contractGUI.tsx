@@ -49,7 +49,6 @@ export function ContractGUI(props: ContractGUIProps) {
   const intl = useIntl()
 
   useEffect(() => {
-    console.log('gui', getInstance())
     setInstance(getInstance())
   }, [getInstance()])
 
@@ -397,6 +396,21 @@ export function ContractGUI(props: ContractGUIProps) {
     setProxyAddress(address)
   }
 
+  const generateToken = async () => {
+    if (
+      props.reencryptInputs?.publicKey != null &&
+      props.reencryptInputs?.signature != null
+    ) {
+      const token = await props.getContractToken(props.contractAddress)
+      const publicKey = `0x${toHexString(token.publicKey)}`
+      multiFields.current[props.reencryptInputs.publicKey].value = publicKey
+      setBasicInput(publicKey)
+      multiFields.current[props.reencryptInputs.signature].value =
+        token.signature
+      setBasicInput(token.signature)
+    }
+  }
+
   return (
     <div
       className={`udapp_contractProperty ${
@@ -420,8 +434,8 @@ export function ContractGUI(props: ContractGUIProps) {
             toggleUpgradeImp && !proxyAddress
               ? 'Proxy address cannot be empty'
               : props.inputs !== '' && basicInput === ''
-              ? 'Input required'
-              : buttonOptions.title
+                ? 'Input required'
+                : buttonOptions.title
           }
         >
           <div
@@ -498,6 +512,8 @@ export function ContractGUI(props: ContractGUIProps) {
           </div>
           <div>
             {props.funcABI.inputs.map((inp, index) => {
+              const isPubKey = props.reencryptInputs?.publicKey === index
+              const isSignature = props.reencryptInputs?.signature === index
               return (
                 <div className="udapp_multiArg" key={index}>
                   <label htmlFor={inp.name}> {inp.name}: </label>
@@ -517,7 +533,12 @@ export function ContractGUI(props: ContractGUIProps) {
                         data-id={`multiParamManagerInput${inp.name}`}
                         onChange={handleBasicInput}
                       />
-                      {inp.type === 'bytes' && instance && (
+                      {(isSignature || isPubKey) && instance && (
+                        <button className="btn" onClick={generateToken}>
+                          Generate
+                        </button>
+                      )}
+                      {!isSignature && inp.type === 'bytes' && instance && (
                         <select
                           ref={(el) => {
                             multiSelects.current[index] = el
@@ -615,51 +636,51 @@ export function ContractGUI(props: ContractGUIProps) {
             <div>
               {props.initializerOptions &&
               props.initializerOptions.initializeInputs ? (
-                <span onClick={handleToggleDeployProxy}>
-                  <i
-                    className={
-                      !toggleDeployProxy
-                        ? 'fas fa-angle-right pt-2'
-                        : 'fas fa-angle-down'
-                    }
-                    aria-hidden="true"
-                  ></i>
-                </span>
-              ) : null}
+                  <span onClick={handleToggleDeployProxy}>
+                    <i
+                      className={
+                        !toggleDeployProxy
+                          ? 'fas fa-angle-right pt-2'
+                          : 'fas fa-angle-down'
+                      }
+                      aria-hidden="true"
+                    ></i>
+                  </span>
+                ) : null}
             </div>
           </div>
           {props.initializerOptions &&
           props.initializerOptions.initializeInputs ? (
-            <div
-              className={`pl-4 flex-column ${
-                toggleDeployProxy ? 'd-flex' : 'd-none'
-              }`}
-            >
-              <div className={`flex-column 'd-flex'}`}>
-                {props.initializerOptions.inputs.inputs.map((inp, index) => {
-                  return (
-                    <div className="mb-2" key={index}>
-                      <label
-                        className="mt-2 text-left d-block"
-                        htmlFor={inp.name}
-                      >
-                        {' '}
-                        {inp.name}:{' '}
-                      </label>
-                      <input
-                        ref={(el) => {
-                          initializeFields.current[index] = el
-                        }}
-                        style={{height: 32}}
-                        className="form-control udapp_input"
-                        placeholder={inp.type}
-                      />
-                    </div>
-                  )
-                })}
+              <div
+                className={`pl-4 flex-column ${
+                  toggleDeployProxy ? 'd-flex' : 'd-none'
+                }`}
+              >
+                <div className={`flex-column 'd-flex'}`}>
+                  {props.initializerOptions.inputs.inputs.map((inp, index) => {
+                    return (
+                      <div className="mb-2" key={index}>
+                        <label
+                          className="mt-2 text-left d-block"
+                          htmlFor={inp.name}
+                        >
+                          {' '}
+                          {inp.name}:{' '}
+                        </label>
+                        <input
+                          ref={(el) => {
+                            initializeFields.current[index] = el
+                          }}
+                          style={{height: 32}}
+                          className="form-control udapp_input"
+                          placeholder={inp.type}
+                        />
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
-            </div>
-          ) : null}
+            ) : null}
           <div className="d-flex justify-content-between">
             <div className="d-flex py-1 align-items-center custom-control custom-checkbox">
               <input
