@@ -551,7 +551,7 @@ export function ContractGUI(props: ContractGUIProps) {
                         >
                           <option value="">none</option>
                           <option value="1">ebool</option>
-                          <option value="8">euint32</option>
+                          <option value="8">euint8</option>
                           <option value="16">euint16</option>
                           <option value="32">euint32</option>
                         </select>
