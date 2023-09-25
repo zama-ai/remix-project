@@ -517,6 +517,7 @@ export function ContractGUI(props: ContractGUIProps) {
             {props.funcABI.inputs.map((inp, index) => {
               const isPubKey = props.reencryptInputs?.publicKey === index
               const isSignature = props.reencryptInputs?.signature === index
+              const isBytes = inp.type === 'bytes' || inp.type === 'bytes[]'
               return (
                 <div className="udapp_multiArg" key={index}>
                   <label htmlFor={inp.name}> {inp.name}: </label>
@@ -545,21 +546,7 @@ export function ContractGUI(props: ContractGUIProps) {
                           🔄 Generate
                         </button>
                       )}
-                      {!isSignature && inp.type === 'bytes' && instance && (
-                        <select
-                          ref={(el) => {
-                            multiSelects.current[index] = el
-                          }}
-                          className="form-control custom-select"
-                        >
-                          <option value="">none</option>
-                          <option value="1">ebool</option>
-                          <option value="8">euint8</option>
-                          <option value="16">euint16</option>
-                          <option value="32">euint32</option>
-                        </select>
-                      )}
-                      {!isSignature && inp.type === 'bytes[]' && instance && (
+                      {!isSignature && isBytes && instance && (
                         <select
                           ref={(el) => {
                             multiSelects.current[index] = el
