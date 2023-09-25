@@ -119,7 +119,6 @@ export function ContractGUI(props: ContractGUIProps) {
   }, [props.lookupOnly, props.funcABI, title])
 
   const getEncodedCall = () => {
-    console.log('getEncodedCall')
     const multiString = getMultiValsString(
       multiFields.current,
       multiSelects.current
@@ -146,7 +145,6 @@ export function ContractGUI(props: ContractGUIProps) {
 
   const getEncodedParams = () => {
     try {
-      console.log('getEncodedParams')
       const multiString = getMultiValsString(
         multiFields.current,
         multiSelects.current
@@ -169,13 +167,36 @@ export function ContractGUI(props: ContractGUIProps) {
 
   const switchMethodViewOff = () => {
     setToggleContainer(false)
-    console.log('switchMethodViewOff')
     const multiValString = getMultiValsString(
       multiFields.current,
       multiSelects.current
     )
 
     if (multiValString) setBasicInput(multiValString)
+  }
+
+  const encrypt = (v: string | number, bits: number) => {
+    if (Number.isNaN(v) || `${v}`.substring(0, 2) === '0x') {
+      return `${v}`
+    }
+    return `0x${toHexString(instance[`encrypt${bits}`](v))}`
+  }
+
+  const encryptVal = (elVal: string, bits: number) => {
+    let ret = elVal
+    if (elVal.substring(0, 2) !== '0x') {
+      try {
+        const parsed = JSON.parse(elVal)
+        if (Array.isArray(parsed)) {
+          ret = '['
+          ret += parsed.map((v: number | string) => encrypt(v, bits)).join(',')
+          ret += ']'
+        } else {
+          ret = encrypt(elVal, bits)
+        }
+      } catch (e) {}
+    }
+    return ret
   }
 
   const getMultiValsString = (
@@ -194,37 +215,21 @@ export function ContractGUI(props: ContractGUIProps) {
       valArrayTest.push(elVal)
       switch (selectValue) {
         case '1': {
-          if (elVal.substring(0, 2) !== '0x') {
-            try {
-              elVal = `0x${toHexString(instance.encrypt8(+elVal))}`
-            } catch (e) {}
-          }
+          elVal = encryptVal(elVal, 8)
           break
         }
         case '8': {
-          if (elVal.substring(0, 2) !== '0x') {
-            try {
-              elVal = `0x${toHexString(instance.encrypt8(+elVal))}`
-            } catch (e) {}
-          }
+          elVal = encryptVal(elVal, 8)
           break
         }
 
         case '16': {
-          if (elVal.substring(0, 2) !== '0x') {
-            try {
-              elVal = `0x${toHexString(instance.encrypt16(+elVal))}`
-            } catch (e) {}
-          }
+          elVal = encryptVal(elVal, 16)
           break
         }
 
         case '32': {
-          if (elVal.substring(0, 2) !== '0x') {
-            try {
-              elVal = `0x${toHexString(instance.encrypt32(+elVal))}`
-            } catch (e) {}
-          }
+          elVal = encryptVal(elVal, 32)
           break
         }
 
@@ -272,7 +277,6 @@ export function ContractGUI(props: ContractGUIProps) {
 
   const handleActionClick = async () => {
     if (deployState.deploy) {
-      console.log('handleActionClick')
       const proxyInitializeString = getMultiValsString(initializeFields.current)
       props.clickCallBack(
         props.initializerOptions.inputs.inputs,
@@ -347,7 +351,6 @@ export function ContractGUI(props: ContractGUIProps) {
   }
 
   const handleExpandMultiClick = () => {
-    console.log('handleExpandMultiClick')
     const valsString = getMultiValsString(
       multiFields.current,
       multiSelects.current
@@ -543,6 +546,20 @@ export function ContractGUI(props: ContractGUIProps) {
                         </button>
                       )}
                       {!isSignature && inp.type === 'bytes' && instance && (
+                        <select
+                          ref={(el) => {
+                            multiSelects.current[index] = el
+                          }}
+                          className="form-control custom-select"
+                        >
+                          <option value="">none</option>
+                          <option value="1">ebool</option>
+                          <option value="8">euint8</option>
+                          <option value="16">euint16</option>
+                          <option value="32">euint32</option>
+                        </select>
+                      )}
+                      {!isSignature && inp.type === 'bytes[]' && instance && (
                         <select
                           ref={(el) => {
                             multiSelects.current[index] = el
