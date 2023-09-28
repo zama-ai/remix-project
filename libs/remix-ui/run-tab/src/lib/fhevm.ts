@@ -7,8 +7,7 @@ export const init = async () => {
 
 let instance: {[key: string]: FhevmInstance}
 
-export const createFhevmInstance = async (web3?: Web3, account?: string) => {
-  if (!account) return
+export const createFhevmInstance = async (account: string, web3?: Web3) => {
   if (!web3) {
     instance = {}
     return
@@ -51,10 +50,11 @@ export const createDecrypt =
   }
 
 export const createGetContractToken =
-  (account: string, web3: Web3) =>
+  (account: string, web3?: Web3) =>
     async (
       contractAddress: string
     ): Promise<{signature: string; publicKey: string}> => {
+      if (!web3) return
       const instance = getInstance(account)
       if (!instance) return
       if (instance.hasKeypair(contractAddress)) {

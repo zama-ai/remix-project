@@ -59,10 +59,10 @@ import {
   init
 } from './fhevm'
 import Web3 from 'web3'
+import {FhevmInstance} from 'fhevmjs/web'
 
 export function RunTabUI(props: RunTabProps) {
   const {plugin} = props
-  const [isFhevm, setFhevm] = useState(false)
   const [focusModal, setFocusModal] = useState<Modal>({
     hide: true,
     title: '',
@@ -87,25 +87,43 @@ export function RunTabUI(props: RunTabProps) {
   const REACT_API = {runTab}
   const currentfile = plugin.config.get('currentFile')
 
+  const [userAddress, setUserAddress] = useState('')
+  const [instance, setInstance] = useState<FhevmInstance | null>(null)
+
   useEffect(() => {
     init()
   }, [])
 
   useEffect(() => {
-    const instance = createFhevmInstance(
-      plugin.blockchain.web3(),
-      runTab.accounts.selectedAccount
-    )
-    if (instance) {
-      setFhevm(true)
-    } else {
-      setFhevm(false)
-    }
+    setUserAddress(runTab.accounts.selectedAccount)
   }, [
     plugin.blockchain.web3(),
-    runTab.accounts.loadedAccounts,
-    runTab.accounts.selectedAccount
+    plugin.blockchain.web3() &&
+      plugin.blockchain.web3().givenProvider.selectedAddress,
+    runTab.accounts.selectedAccount,
+    runTab.accounts.loadedAccounts
   ])
+
+  useEffect(() => {
+    const web3 = plugin.blockchain.web3()
+    if (web3)
+      setUserAddress(plugin.blockchain.web3().givenProvider.selectedAddress)
+  }, [
+    plugin.blockchain.web3(),
+    plugin.blockchain.web3() &&
+      plugin.blockchain.web3().givenProvider.selectedAddress
+  ])
+
+  useEffect(() => {
+    const web3 = plugin.blockchain.web3()
+    createFhevmInstance(userAddress, web3).then((instance) => {
+      if (instance) {
+        setInstance(instance)
+      } else {
+        setInstance(null)
+      }
+    })
+  }, [userAddress])
 
   useEffect(() => {
     initRunTab(plugin)(dispatch)
@@ -171,27 +189,21 @@ export function RunTabUI(props: RunTabProps) {
   }, [runTab.popup])
 
   const encrypt = useMemo(() => {
-    const account = runTab.accounts.selectedAccount
-    if (!account) return
-    return createEncrypt(account)
-  }, [runTab.accounts.loadedAccounts, runTab.accounts.selectedAccount])
+    if (!instance) return
+    return createEncrypt(userAddress)
+  }, [instance])
 
   const decrypt = useMemo(() => {
-    const account = runTab.accounts.selectedAccount
-    if (!account) return
-    return createDecrypt(account)
-  }, [runTab.accounts.loadedAccounts, runTab.accounts.selectedAccount])
+    if (!instance) return
+    return createDecrypt(userAddress)
+  }, [instance])
 
   const getContractToken = useMemo(() => {
+    if (!instance) return
     const web3: Web3 = plugin.blockchain.web3()
-    const account = runTab.accounts.selectedAccount
-    if (!web3 || !account) return
-    return createGetContractToken(account, web3)
-  }, [
-    plugin.blockchain.web3(),
-    runTab.accounts.loadedAccounts,
-    runTab.accounts.selectedAccount
-  ])
+    if (!web3) return
+    return createGetContractToken(userAddress, web3)
+  }, [instance])
 
   const setCheckIpfs = (value: boolean) => {
     dispatch(setIpfsCheckedState(value))
@@ -392,7 +404,7 @@ export function RunTabUI(props: RunTabProps) {
             currentFile={currentfile}
           />
           <InstanceContainerUI
-            isFhevm={isFhevm}
+            isFhevm={!!instance}
             getContractToken={getContractToken}
             encrypt={encrypt}
             decrypt={decrypt}
