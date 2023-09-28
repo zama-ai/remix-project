@@ -92,7 +92,10 @@ export function RunTabUI(props: RunTabProps) {
   }, [])
 
   useEffect(() => {
-    const instance = createFhevmInstance(plugin.blockchain.web3())
+    const instance = createFhevmInstance(
+      plugin.blockchain.web3(),
+      runTab.accounts.selectedAccount
+    )
     if (instance) {
       setFhevm(true)
     } else {
@@ -168,31 +171,21 @@ export function RunTabUI(props: RunTabProps) {
   }, [runTab.popup])
 
   const encrypt = useMemo(() => {
-    const web3: Web3 = plugin.blockchain.web3()
-    if (!web3) return
-    const account = web3.givenProvider.selectedAddress
+    const account = runTab.accounts.selectedAccount
+    if (!account) return
     return createEncrypt(account)
-  }, [
-    plugin.blockchain.web3(),
-    runTab.accounts.loadedAccounts,
-    runTab.accounts.selectedAccount
-  ])
+  }, [runTab.accounts.loadedAccounts, runTab.accounts.selectedAccount])
 
   const decrypt = useMemo(() => {
-    const web3: Web3 = plugin.blockchain.web3()
-    if (!web3) return
-    const account = web3.givenProvider.selectedAddress
+    const account = runTab.accounts.selectedAccount
+    if (!account) return
     return createDecrypt(account)
-  }, [
-    plugin.blockchain.web3(),
-    runTab.accounts.loadedAccounts,
-    runTab.accounts.selectedAccount
-  ])
+  }, [runTab.accounts.loadedAccounts, runTab.accounts.selectedAccount])
 
   const getContractToken = useMemo(() => {
     const web3: Web3 = plugin.blockchain.web3()
-    if (!web3) return
-    const account = web3.givenProvider.selectedAddress
+    const account = runTab.accounts.selectedAccount
+    if (!web3 || !account) return
     return createGetContractToken(account, web3)
   }, [
     plugin.blockchain.web3(),

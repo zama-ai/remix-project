@@ -7,12 +7,13 @@ export const init = async () => {
 
 let instance: {[key: string]: FhevmInstance}
 
-export const createFhevmInstance = async (web3?: Web3) => {
+export const createFhevmInstance = async (web3?: Web3, account?: string) => {
+  if (!account) return
   if (!web3) {
     instance = {}
     return
   }
-  const account = web3.givenProvider.selectedAddress
+  if (instance[account]) return instance[account]
   try {
     const chainId = await web3.eth.getChainId()
     const publicKey = await web3.eth.call({
