@@ -179,7 +179,7 @@ export function ContractGUI(props: ContractGUIProps) {
     if (`${v}`.substring(0, 2) === '0x' || Number.isNaN(+v)) {
       return `${v}`
     }
-    return `0x${toHexString(instance[`encrypt${bits}`](v))}`
+    return `0x${toHexString(instance[`encrypt${bits}`](+v))}`
   }
 
   const encryptVal = (elVal: string, bits: number) => {
