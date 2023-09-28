@@ -15,7 +15,6 @@ import {
   isNumeric,
   shortenAddress
 } from '@remix-ui/helper'
-import {getInstance} from '../fhevm'
 
 const publicKeyLabels = ['pubKey', 'publicKey', 'pk']
 const signatureLabels = ['signature', 'sign', 's']
@@ -350,7 +349,9 @@ export function UniversalDappUI(props: UdappProps) {
                 <div key={index}>
                   <ContractGUI
                     reencryptInputs={reencryptInputs}
+                    isFhevm={props.isFhevm}
                     getContractToken={props.getContractToken}
+                    encrypt={props.encrypt}
                     contractAddress={address}
                     funcABI={funcABI}
                     clickCallBack={(
@@ -386,16 +387,27 @@ export function UniversalDappUI(props: UdappProps) {
                                   ) {
                                     const [, ciphertext] =
                                         response[0].split('bytes: ')
-                                    const decrypted = getInstance().decrypt(
-                                      address,
-                                      ciphertext
-                                    )
-                                    return renderData(
-                                      `${decrypted} (decryption)`,
-                                      response,
-                                      innerkey,
-                                      innerkey
-                                    )
+                                    try {
+                                      const decrypted = props.decrypt(
+                                        address,
+                                        ciphertext
+                                      )
+                                      return renderData(
+                                        `${decrypted} (decryption)`,
+                                        response,
+                                        innerkey,
+                                        innerkey
+                                      )
+                                    } catch (e) {
+                                      return renderData(
+                                        props.instance.decodedResponse[key][
+                                          innerkey
+                                        ],
+                                        response,
+                                        innerkey,
+                                        innerkey
+                                      )
+                                    }
                                   }
                                   return renderData(
                                     props.instance.decodedResponse[key][

@@ -368,9 +368,12 @@ export interface RecorderProps {
 }
 
 export interface InstanceContainerProps {
-  getContractToken: (
+  isFhevm: boolean
+  getContractToken?: (
     addr: string
-  ) => Promise<{signature: string; publicKey: Uint8Array}>
+  ) => Promise<{signature: string; publicKey: string}>
+  encrypt?: (v: string | number, bits: number) => string
+  decrypt?: (contractAddress: string, ciphertext: string) => number
   instances: {
     instanceList: {
       contractData?: ContractData
@@ -462,9 +465,11 @@ export interface DeployOptions {
 export interface ContractGUIProps {
   reencryptInputs?: {signature: number | null; publicKey: number | null}
   contractAddress?: string
+  isFhevm?: boolean
   getContractToken?: (
     addr: string
-  ) => Promise<{signature: string; publicKey: Uint8Array}>
+  ) => Promise<{signature: string; publicKey: string}>
+  encrypt?: (v: string | number, bits: number) => string
   title?: string
   funcABI: FuncABI
   inputs: string
@@ -525,9 +530,12 @@ export interface MainnetProps {
 }
 
 export interface UdappProps {
-  getContractToken: (
+  isFhevm: boolean
+  getContractToken?: (
     addr: string
-  ) => Promise<{signature: string; publicKey: Uint8Array}>
+  ) => Promise<{signature: string; publicKey: string}>
+  encrypt?: (v: string | number, bits: number) => string
+  decrypt?: (contractAddress: string, ciphertext: string) => number
   instance: {
     contractData?: ContractData
     address: string

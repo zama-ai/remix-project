@@ -14,16 +14,10 @@ import {
   upgradeReportMsg
 } from '@remix-ui/helper'
 import {Dropdown} from 'react-bootstrap'
-import {FhevmInstance} from 'fhevmjs/web'
-import {getInstance} from '../fhevm'
-
-export const toHexString = (bytes: Uint8Array) =>
-  bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '')
 
 const txFormat = remixLib.execution.txFormat
 const txHelper = remixLib.execution.txHelper
 export function ContractGUI(props: ContractGUIProps) {
-  const [instance, setInstance] = useState<FhevmInstance>()
   const [title, setTitle] = useState<string>('')
   const [basicInput, setBasicInput] = useState<string>('')
   const [toggleContainer, setToggleContainer] = useState<boolean>(false)
@@ -47,10 +41,6 @@ export function ContractGUI(props: ContractGUIProps) {
   const initializeFields = useRef<Array<HTMLInputElement | null>>([])
   const basicInputRef = useRef<HTMLInputElement>()
   const intl = useIntl()
-
-  useEffect(() => {
-    setInstance(getInstance())
-  }, [getInstance()])
 
   useEffect(() => {
     if (props.deployOption && Array.isArray(props.deployOption)) {
@@ -175,13 +165,6 @@ export function ContractGUI(props: ContractGUIProps) {
     if (multiValString) setBasicInput(multiValString)
   }
 
-  const encrypt = (v: string | number, bits: number) => {
-    if (`${v}`.substring(0, 2) === '0x' || Number.isNaN(+v)) {
-      return `${v}`
-    }
-    return `0x${toHexString(instance[`encrypt${bits}`](+v))}`
-  }
-
   const encryptVal = (elVal: string, bits: number) => {
     let ret = elVal
     if (elVal.substring(0, 2) !== '0x') {
@@ -189,10 +172,12 @@ export function ContractGUI(props: ContractGUIProps) {
         const parsed = JSON.parse(elVal)
         if (Array.isArray(parsed)) {
           ret = '['
-          ret += parsed.map((v: number | string) => encrypt(v, bits)).join(',')
+          ret += parsed
+            .map((v: number | string) => props.encrypt(v, bits))
+            .join(',')
           ret += ']'
         } else {
-          ret = encrypt(elVal, bits)
+          ret = props.encrypt(elVal, bits)
         }
       } catch (e) {}
     }
@@ -405,9 +390,9 @@ export function ContractGUI(props: ContractGUIProps) {
       props.reencryptInputs?.signature != null
     ) {
       const token = await props.getContractToken(props.contractAddress)
-      const publicKey = `0x${toHexString(token.publicKey)}`
-      multiFields.current[props.reencryptInputs.publicKey].value = publicKey
-      setBasicInput(publicKey)
+      multiFields.current[props.reencryptInputs.publicKey].value =
+        token.publicKey
+      setBasicInput(token.publicKey)
       multiFields.current[props.reencryptInputs.signature].value =
         token.signature
       setBasicInput(token.signature)
@@ -537,7 +522,7 @@ export function ContractGUI(props: ContractGUIProps) {
                         data-id={`multiParamManagerInput${inp.name}`}
                         onChange={handleBasicInput}
                       />
-                      {(isSignature || isPubKey) && instance && (
+                      {props.isFhevm && (isSignature || isPubKey) && (
                         <button
                           className="btn"
                           style={{minWidth: '100px'}}
@@ -546,7 +531,7 @@ export function ContractGUI(props: ContractGUIProps) {
                           🔄 Generate
                         </button>
                       )}
-                      {!isSignature && isBytes && instance && (
+                      {props.isFhevm && !isSignature && isBytes && (
                         <select
                           ref={(el) => {
                             multiSelects.current[index] = el

@@ -53,7 +53,10 @@ export function InstanceContainerUI(props: InstanceContainerProps) {
           {props.instances.instanceList.map((instance, index) => {
             return (
               <UniversalDappUI
+                isFhevm={props.isFhevm}
                 getContractToken={props.getContractToken}
+                encrypt={props.encrypt}
+                decrypt={props.decrypt}
                 key={index}
                 instance={instance}
                 context={props.getContext()}

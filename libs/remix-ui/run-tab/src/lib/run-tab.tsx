@@ -1,6 +1,5 @@
 // eslint-disable-next-line no-use-before-define
 import React, {Fragment, useEffect, useMemo, useReducer, useState} from 'react'
-import Web3 from 'web3'
 import {ModalDialog} from '@remix-ui/modal-dialog'
 // eslint-disable-next-line no-unused-vars
 import {Toaster} from '@remix-ui/toaster'
@@ -52,10 +51,18 @@ import {PassphrasePrompt} from './components/passphrase'
 import {MainnetPrompt} from './components/mainnet'
 import {ScenarioPrompt} from './components/scenario'
 import {setIpfsCheckedState} from './actions/payload'
-import {createFhevmInstance, getInstance, init} from './fhevm'
+import {
+  createDecrypt,
+  createEncrypt,
+  createFhevmInstance,
+  createGetContractToken,
+  init
+} from './fhevm'
+import Web3 from 'web3'
 
 export function RunTabUI(props: RunTabProps) {
   const {plugin} = props
+  const [isFhevm, setFhevm] = useState(false)
   const [focusModal, setFocusModal] = useState<Modal>({
     hide: true,
     title: '',
@@ -85,47 +92,17 @@ export function RunTabUI(props: RunTabProps) {
   }, [])
 
   useEffect(() => {
-    createFhevmInstance(plugin.blockchain.web3())
-    console.log(plugin.blockchain.web3())
-  }, [plugin.blockchain.web3(), plugin.blockchain.getCurrentProvider()])
-
-  const getContractToken = useMemo(
-    () =>
-      async (
-        contractAddress: string
-      ): Promise<{signature: string; publicKey: Uint8Array}> => {
-        const instance = getInstance()
-        const web3: Web3 = plugin.blockchain.web3()
-        if (!web3 || !instance) return
-        if (instance.hasKeypair(contractAddress)) {
-          return instance.getTokenSignature(contractAddress)!
-        } else {
-          const {publicKey, token} = instance.generateToken({
-            verifyingContract: contractAddress
-          })
-          const from = web3.givenProvider.selectedAddress
-          console.log('params')
-          const params = [from, JSON.stringify(token)]
-          console.log('signature')
-          return new Promise((resolve) => {
-            web3.givenProvider.sendAsync(
-              {
-                method: 'eth_signTypedData_v4',
-                params,
-                from
-              },
-              (err, signatureObj) => {
-                const signature = signatureObj.result
-                console.log('lol', signatureObj)
-                instance.setTokenSignature(contractAddress, signature)
-                resolve({signature, publicKey})
-              }
-            )
-          })
-        }
-      },
-    [plugin.blockchain.web3(), plugin.blockchain.getCurrentProvider()]
-  )
+    const instance = createFhevmInstance(plugin.blockchain.web3())
+    if (instance) {
+      setFhevm(true)
+    } else {
+      setFhevm(false)
+    }
+  }, [
+    plugin.blockchain.web3(),
+    runTab.accounts.loadedAccounts,
+    runTab.accounts.selectedAccount
+  ])
 
   useEffect(() => {
     initRunTab(plugin)(dispatch)
@@ -189,6 +166,39 @@ export function RunTabUI(props: RunTabProps) {
       toast(runTab.popup)
     }
   }, [runTab.popup])
+
+  const encrypt = useMemo(() => {
+    const web3: Web3 = plugin.blockchain.web3()
+    if (!web3) return
+    const account = web3.givenProvider.selectedAddress
+    return createEncrypt(account)
+  }, [
+    plugin.blockchain.web3(),
+    runTab.accounts.loadedAccounts,
+    runTab.accounts.selectedAccount
+  ])
+
+  const decrypt = useMemo(() => {
+    const web3: Web3 = plugin.blockchain.web3()
+    if (!web3) return
+    const account = web3.givenProvider.selectedAddress
+    return createDecrypt(account)
+  }, [
+    plugin.blockchain.web3(),
+    runTab.accounts.loadedAccounts,
+    runTab.accounts.selectedAccount
+  ])
+
+  const getContractToken = useMemo(() => {
+    const web3: Web3 = plugin.blockchain.web3()
+    if (!web3) return
+    const account = web3.givenProvider.selectedAddress
+    return createGetContractToken(account, web3)
+  }, [
+    plugin.blockchain.web3(),
+    runTab.accounts.loadedAccounts,
+    runTab.accounts.selectedAccount
+  ])
 
   const setCheckIpfs = (value: boolean) => {
     dispatch(setIpfsCheckedState(value))
@@ -389,7 +399,10 @@ export function RunTabUI(props: RunTabProps) {
             currentFile={currentfile}
           />
           <InstanceContainerUI
+            isFhevm={isFhevm}
             getContractToken={getContractToken}
+            encrypt={encrypt}
+            decrypt={decrypt}
             instances={runTab.instances}
             clearInstances={removeInstances}
             removeInstance={removeSingleInstance}
