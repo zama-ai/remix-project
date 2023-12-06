@@ -13503,10 +13503,10 @@ fflate@^0.4.8:
   resolved "https://registry.yarnpkg.com/fflate/-/fflate-0.4.8.tgz#f90b82aefbd8ac174213abb338bd7ef848f0f5ae"
   integrity sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA==
 
-fhevmjs@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/fhevmjs/-/fhevmjs-0.2.1.tgz#01f21ab19d9f89ae44f7b4c0765800d92ab0ddd9"
-  integrity sha512-Nz26dqyJpxIO/uVy2TioG/8Ad/qOC2Z8cIksDGLmbSBrMogwCR/hcilIAnvm74ffwgZkoqvOvP30NX+2dcSYcQ==
+fhevmjs@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/fhevmjs/-/fhevmjs-0.2.2.tgz#15ceaf37c083b3db256b75b9ffca6f0f4f359caa"
+  integrity sha512-FTeJgVNA2cF233WS3gwtOg5aglzwv4SWbM6+ckpVcHjQQoR+i7iOa15uH8C6BgkERciuLC5U8rc//0aBk1ALDg==
   dependencies:
     commander "^11.0.0"
     crypto-js "^4.1.1"

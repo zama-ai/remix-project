@@ -15,10 +15,11 @@ export const createFhevmInstance = async (account: string, web3?: Web3) => {
   if (instance[account]) return instance[account]
   try {
     const chainId = await web3.eth.getChainId()
-    const publicKey = await web3.eth.call({
+    const ret = await web3.eth.call({
       to: '0x000000000000000000000000000000000000005d',
       data: '0xd9d47bb001'
     })
+    const publicKey: any = web3.eth.abi.decodeParameter('bytes', ret)
     instance[account] = await createInstance({chainId, publicKey})
   } catch (e) {
     console.log('err', e)
