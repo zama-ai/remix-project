@@ -61,15 +61,15 @@ export const createGetContractToken =
       if (!instance) return
       if (instance.hasKeypair(contractAddress)) {
         const {signature, publicKey} =
-        getInstance(account).getTokenSignature(contractAddress)!
+        getInstance(account).getPublicKey(contractAddress)!
         return {signature, publicKey: `0x${toHexString(publicKey)}`}
       } else {
-        const {publicKey, token} = instance.generateToken({
+        const {publicKey, eip712} = instance.generatePublicKey({
           verifyingContract: contractAddress
         })
         const from = web3.givenProvider.selectedAddress
         console.log('params')
-        const params = [from, JSON.stringify(token)]
+        const params = [from, JSON.stringify(eip712)]
         console.log('signature')
         return new Promise((resolve) => {
           web3.givenProvider.sendAsync(
@@ -81,7 +81,7 @@ export const createGetContractToken =
             (err, signatureObj) => {
               const signature = signatureObj.result
               console.log('lol', signatureObj)
-              instance.setTokenSignature(contractAddress, signature)
+              instance.setSignature(contractAddress, signature)
               resolve({signature, publicKey: `0x${toHexString(publicKey)}`})
             }
           )
