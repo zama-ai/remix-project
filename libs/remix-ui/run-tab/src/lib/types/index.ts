@@ -373,7 +373,7 @@ export interface InstanceContainerProps {
     addr: string
   ) => Promise<{signature: string; publicKey: string}>
   encrypt?: (v: string | number, bits: number) => string
-  decrypt?: (contractAddress: string, ciphertext: string) => number
+  decrypt?: (contractAddress: string, ciphertext: string) => bigint
   instances: {
     instanceList: {
       contractData?: ContractData
@@ -535,7 +535,7 @@ export interface UdappProps {
     addr: string
   ) => Promise<{signature: string; publicKey: string}>
   encrypt?: (v: string | number, bits: number) => string
-  decrypt?: (contractAddress: string, ciphertext: string) => number
+  decrypt?: (contractAddress: string, ciphertext: string) => bigint
   instance: {
     contractData?: ContractData
     address: string

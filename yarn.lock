@@ -13503,19 +13503,19 @@ fflate@^0.4.8:
   resolved "https://registry.yarnpkg.com/fflate/-/fflate-0.4.8.tgz#f90b82aefbd8ac174213abb338bd7ef848f0f5ae"
   integrity sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA==
 
-fhevmjs@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/fhevmjs/-/fhevmjs-0.3.1.tgz#dab6943746e761db28960aa96f18e0a53b9f89c3"
-  integrity sha512-CTn/aavXeMmQmO3ltLNIXV5kUsysfPDdiafVyb3c0NGDAQ3ltVwh4Af4qw4ey7xwhlS50WBBZc7EoKM3SIWnRg==
+fhevmjs@0.4.0-4:
+  version "0.4.0-4"
+  resolved "https://registry.yarnpkg.com/fhevmjs/-/fhevmjs-0.4.0-4.tgz#ef4dce2cb5616c8ad31cd2c6072d12391bd24d0d"
+  integrity sha512-aCEtp3cNGIc8wuAaxnXaztfP6VLzIHPTFKgCT3izAaWLoo50P6xZ1okbKdeX3vT+lmOYdszwY03ICooKZO68xg==
   dependencies:
+    bigint-buffer "^1.1.5"
     commander "^11.0.0"
     crypto-js "^4.1.1"
     ethers "^6.6.4"
     libsodium "^0.7.11"
     libsodium-wrappers "^0.7.11"
-    node-tfhe "^0.4.1"
-    sha3 "^2.1.4"
-    tfhe "^0.4.1"
+    node-tfhe "^0.5.1"
+    tfhe "^0.5.1"
 
 figgy-pudding@^3.4.1, figgy-pudding@^3.5.1:
   version "3.5.2"
@@ -20311,10 +20311,10 @@ node-releases@^2.0.6:
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-2.0.6.tgz#8a7088c63a55e493845683ebf3c828d8c51c5503"
   integrity sha512-PiVXnNuFm5+iYkLBNeq5211hvO38y63T0i2KKh2KnUs3RpzJ+JtODFjkD8yjLwnDkTYF1eKXheUwdssR+NRZdg==
 
-node-tfhe@^0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/node-tfhe/-/node-tfhe-0.4.1.tgz#ce1d43af8a33e09319f6467475cccccd84cbee9f"
-  integrity sha512-GysZYDRnvL8UyywaK/+/Rvqvpdk5pIRR8MaCqEJmaG3rGo/8OXwPzb6WJaAyYNZz2VmimCGBxznkuNVRviFHMQ==
+node-tfhe@^0.5.1:
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/node-tfhe/-/node-tfhe-0.5.2.tgz#7803a7a3345e1c18d5f5ff3b4a2d571d0a027a6a"
+  integrity sha512-nASAkO67xV5J/b3xFhYHQd0f7kTd2WAfFqqRvcT3P6JwA2x+Ur7TZfjvZrB1InnqKTxxcYpu9lvcNWDIWLpeLg==
 
 nodemon@^2.0.4:
   version "2.0.20"
@@ -24697,13 +24697,6 @@ sha.js@^2.4.0, sha.js@^2.4.11, sha.js@^2.4.8, sha.js@^2.4.9, sha.js@~2.4.4:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
 
-sha3@^2.1.4:
-  version "2.1.4"
-  resolved "https://registry.yarnpkg.com/sha3/-/sha3-2.1.4.tgz#000fac0fe7c2feac1f48a25e7a31b52a6492cc8f"
-  integrity sha512-S8cNxbyb0UGUM2VhRD4Poe5N58gJnJsLJ5vC7FYWGUmGhcsj4++WaIOBFVDxlG0W3To6xBuiRh+i0Qp2oNCOtg==
-  dependencies:
-    buffer "6.0.3"
-
 sha@~2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/sha/-/sha-2.0.1.tgz#6030822fbd2c9823949f8f72ed6411ee5cf25aae"
@@ -26192,10 +26185,10 @@ text-table@^0.2.0, text-table@~0.2.0:
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=
 
-tfhe@^0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/tfhe/-/tfhe-0.4.1.tgz#0cb7cd694a1b9bc7c3b6205fe5a98305a065c79d"
-  integrity sha512-Ok8CrrryBjtgCbPliDG3YuAFX0oJLS4y9pCajF6TSORyKYIDVtfOKbVntG2gZFOeUukUTHSI5FVofqhX5GkPTw==
+tfhe@^0.5.1:
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/tfhe/-/tfhe-0.5.2.tgz#2ecb1a6f6e6302b1bcd4c9554fca02a45f18b2d2"
+  integrity sha512-5txOJ80JjbVUTyTteR3KNxzP0lqUV2SWBCLM2vkRHUonKcGp+YZueeC5wtZbL87cKdLKNEZqKzlN6JjZWCKimQ==
 
 thenify-all@^1.0.0:
   version "1.6.0"
