@@ -38,10 +38,12 @@ export const createEncrypt =
   (account: string) => (v: string | number, bits: number) => {
     const instance = getInstance(account)
     if (!instance) return `${v}`
-    if (`${v}`.substring(0, 2) === '0x' || Number.isNaN(+v)) {
+    if (`${v}`.substring(0, 2) === '0x' || Number.isNaN(Number(v))) {
       return `${v}`
     }
-    return `0x${toHexString(instance[`encrypt${bits}`](+v))}`
+    let val: number | bigint = Number(v)
+    if (bits > 32) val = BigInt(v)
+    return `0x${toHexString(instance[`encrypt${bits}`](val))}`
   }
 
 export const createDecrypt =

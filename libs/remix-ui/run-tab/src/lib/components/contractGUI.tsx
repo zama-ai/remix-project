@@ -218,6 +218,11 @@ export function ContractGUI(props: ContractGUIProps) {
           break
         }
 
+        case '64': {
+          elVal = encryptVal(elVal, 64)
+          break
+        }
+
         default: {
           elVal = elVal.replace(/(^|,\s+|,)(\d+)(\s+,|,|$)/g, '$1"$2"$3') // replace non quoted number by quoted number
           elVal = elVal.replace(
@@ -543,6 +548,7 @@ export function ContractGUI(props: ContractGUIProps) {
                           <option value="8">euint8</option>
                           <option value="16">euint16</option>
                           <option value="32">euint32</option>
+                          <option value="64">euint64</option>
                         </select>
                       )}
                     </>
