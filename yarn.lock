@@ -13503,10 +13503,10 @@ fflate@^0.4.8:
   resolved "https://registry.yarnpkg.com/fflate/-/fflate-0.4.8.tgz#f90b82aefbd8ac174213abb338bd7ef848f0f5ae"
   integrity sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA==
 
-fhevmjs@0.4.0-4:
-  version "0.4.0-4"
-  resolved "https://registry.yarnpkg.com/fhevmjs/-/fhevmjs-0.4.0-4.tgz#ef4dce2cb5616c8ad31cd2c6072d12391bd24d0d"
-  integrity sha512-aCEtp3cNGIc8wuAaxnXaztfP6VLzIHPTFKgCT3izAaWLoo50P6xZ1okbKdeX3vT+lmOYdszwY03ICooKZO68xg==
+fhevmjs@0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/fhevmjs/-/fhevmjs-0.4.0.tgz#7c92653cdb7b91405eaceb947854bc7df654c203"
+  integrity sha512-4FEU9B8SYKeikuOycRQzexcTsu2vK89tIzyepIGhQ/d1LzMu84TmfLg5H688CoRUPVbVkRcsaVN13OwzJBKX/w==
   dependencies:
     bigint-buffer "^1.1.5"
     commander "^11.0.0"

@@ -309,7 +309,7 @@
     "exports-loader": "^1.1.0",
     "fast-async": "^7.0.6",
     "fast-levenshtein": "^2.0.6",
-    "fhevmjs": "0.4.0-4",
+    "fhevmjs": "0.4.0",
     "ganache-cli": "^6.8.1",
     "gists": "^1.0.1",
     "gulp": "^4.0.2",
